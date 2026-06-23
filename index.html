@@ -2,47 +2,355 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>Art Store</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ART STORE</title>
 
 <style>
+
 body{
-    background:#f0f0f0;
-    font-family:Arial;
-    text-align:center;
+margin:0;
+font-family:Arial,sans-serif;
+background:linear-gradient(135deg,#0f0f0f,#1f1f1f,#2f2f2f);
+color:white;
+text-align:center;
 }
 
-.login{
-    margin-top:100px;
+#login,
+#shop,
+#admin{
+display:none;
+}
+
+#login{
+display:block;
+margin-top:100px;
 }
 
 input{
-    width:250px;
-    padding:10px;
-    margin:10px;
-    font-size:18px;
+padding:12px;
+width:250px;
+margin:5px;
+border-radius:10px;
+border:none;
 }
 
 button{
-    padding:10px 20px;
-    font-size:18px;
+padding:10px 20px;
+border:none;
+border-radius:10px;
+cursor:pointer;
+font-weight:bold;
 }
-</style>
 
+#logout{
+position:fixed;
+top:10px;
+left:10px;
+background:red;
+color:white;
+}
+
+#geld{
+position:fixed;
+top:10px;
+right:10px;
+background:#00ff88;
+color:black;
+padding:10px 20px;
+font-size:24px;
+font-weight:bold;
+border-radius:10px;
+}
+
+.shop{
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+gap:20px;
+padding:20px;
+}
+
+.item{
+background:#1d1d1d;
+border:2px solid #444;
+border-radius:15px;
+width:220px;
+padding:15px;
+box-shadow:0 0 10px rgba(0,255,100,0.3);
+}
+
+#meldung{
+display:none;
+position:fixed;
+top:20px;
+left:50%;
+transform:translateX(-50%);
+background:#00cc66;
+padding:15px 30px;
+border-radius:10px;
+font-weight:bold;
+color:white;
+z-index:999;
+}
+
+</style>
 </head>
+
 <body>
 
-<div class="login">
-<h1>Art Store</h1>
+<div id="meldung">
+✅ Kauf erfolgreich! Mirac wird dich anrufen.
+</div>
 
-<h2>Anmelden</h2>
+<div id="login">
 
-<input type="text" placeholder="Benutzername"><br>
+<h1>🎮 ART STORE</h1>
 
-<input type="password" placeholder="Passwort"><br>
+<input id="user" placeholder="Benutzername">
 
-<button>Anmelden</button>
+<br><br>
+
+<input id="pass"
+type="password"
+placeholder="Passwort">
+
+<br><br>
+
+<button onclick="login()">
+Anmelden
+</button>
+
+<p id="fehler"></p>
 
 </div>
+<div id="shop">
+
+<button id="logout" onclick="logout()">
+Abmelden
+</button>
+
+<div id="geld">
+0.00 €
+</div>
+
+<h1>🎮 ART STORE</h1>
+
+<div class="shop">
+
+<div class="item">
+<h3>Klebeband</h3>
+<p>2.24 €</p>
+<button onclick="kaufen(2.24,'Klebeband')">
+Kaufen
+</button>
+</div>
+
+<div class="item">
+<h3>Schere</h3>
+<p>3.24 €</p>
+<button onclick="kaufen(3.24,'Schere')">
+Kaufen
+</button>
+</div>
+
+<div class="item">
+<h3>Stift</h3>
+<p>1.24 €</p>
+<button onclick="kaufen(1.24,'Stift')">
+Kaufen
+</button>
+</div>
+
+<div class="item">
+<h3>Notizblock</h3>
+<p>1.74 €</p>
+<button onclick="kaufen(1.74,'Notizblock')">
+Kaufen
+</button>
+</div>
+
+<div class="item">
+<h3>Lineal</h3>
+<p>1.49 €</p>
+<button onclick="kaufen(1.49,'Lineal')">
+Kaufen
+</button>
+</div>
+
+<div class="item">
+<h3>Marker</h3>
+<p>2.99 €</p>
+<button onclick="kaufen(2.99,'Marker')">
+Kaufen
+</button>
+</div>
+
+</div>
+
+</div>
+<div id="admin">
+
+<button id="logout" onclick="logout()">
+Abmelden
+</button>
+
+<h1>👑 MIRAC ADMIN</h1>
+
+<h2>Guthaben hinzufügen</h2>
+
+<button onclick="addMoney(1)">
++1 €
+</button>
+
+<button onclick="addMoney(2)">
++2 €
+</button>
+
+<button onclick="addMoney(5)">
++5 €
+</button>
+
+<button onclick="addMoney(10)">
++10 €
+</button>
+
+<button onclick="addMoney(20)">
++20 €
+</button>
+
+<h2 id="adminGeld">
+0.00 €
+</h2>
+
+</div>
+
+<script>
+
+let geld = 0;
+
+function updateMoney(){
+
+let g =
+document.getElementById("geld");
+
+if(g){
+
+g.innerHTML =
+geld.toFixed(2) + " €";
+
+}
+
+let a =
+document.getElementById("adminGeld");
+
+if(a){
+
+a.innerHTML =
+geld.toFixed(2) + " €";
+
+}
+
+}
+
+function login(){
+
+let u =
+document.getElementById("user").value;
+
+let p =
+document.getElementById("pass").value;
+
+if(
+u === "Art" &&
+p === "artisthart"
+){
+
+document.getElementById("login")
+.style.display = "none";
+
+document.getElementById("shop")
+.style.display = "block";
+
+updateMoney();
+
+}
+
+else if(
+u === "Mirac" &&
+p === "mirac911"
+){
+
+document.getElementById("login")
+.style.display = "none";
+
+document.getElementById("admin")
+.style.display = "block";
+
+updateMoney();
+
+}
+
+else{
+
+document.getElementById("fehler")
+.innerHTML =
+"Falscher Benutzername oder Passwort";
+
+}
+
+}
+
+function logout(){
+
+document.getElementById("shop")
+.style.display = "none";
+
+document.getElementById("admin")
+.style.display = "none";
+
+document.getElementById("login")
+.style.display = "block";
+
+}
+
+function addMoney(betrag){
+
+geld += betrag;
+
+updateMoney();
+
+}
+
+function kaufen(preis,name){
+
+if(geld < preis){
+
+alert("Zu wenig Guthaben!");
+
+return;
+
+}
+
+geld -= preis;
+
+updateMoney();
+
+let m =
+document.getElementById("meldung");
+
+m.style.display = "block";
+
+setTimeout(function(){
+
+m.style.display = "none";
+
+},3000);
+
+}
+
+updateMoney();
+
+</script>
 
 </body>
 </html>
