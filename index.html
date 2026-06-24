@@ -2,8 +2,8 @@
 <html lang="de">
 <head>
 
-
 <meta charset="UTF-8">
+
 <meta name="viewport"
 content="width=device-width, initial-scale=1.0">
 
@@ -38,6 +38,8 @@ bgmove 15s ease infinite;
 color:white;
 
 min-height:100vh;
+
+text-align:center;
 
 }
 
@@ -198,6 +200,8 @@ font-size:18px;
 
 z-index:1000;
 
+}
+
 box-shadow:
 0 0 15px #00cc66;
 
@@ -275,24 +279,6 @@ width:350px;
 
 }
 
-.adminButtons button{
-
-margin:5px;
-
-background:#00ffff;
-
-color:black;
-
-}
-
-.kaufenBtn{
-
-background:#00ff88;
-
-color:black;
-
-}
-
 </style>
 
 </head>
@@ -323,7 +309,8 @@ placeholder="Passwort">
 
 <br><br>
 
-<button onclick="login()">
+<button
+onclick="login()">
 
 Anmelden
 
@@ -348,7 +335,11 @@ Abmelden
 
 </div>
 
-<h1>🎮 ART STORE 🎮</h1>
+<h1>
+
+🎮 ART STORE 🎮
+
+</h1>
 
 <div class="suche">
 
@@ -368,7 +359,6 @@ onkeyup="sucheArtikel()">
 <p>0,99 €</p>
 
 <button
-class="kaufenBtn"
 onclick="kaufen(0.99,'Schwamm')">
 
 Kaufen
@@ -384,7 +374,6 @@ Kaufen
 <p>2,49 €</p>
 
 <button
-class="kaufenBtn"
 onclick="kaufen(2.49,'Fake Blume')">
 
 Kaufen
@@ -400,7 +389,6 @@ Kaufen
 <p>1,50 €</p>
 
 <button
-class="kaufenBtn"
 onclick="kaufen(1.50,'Random Stift')">
 
 Kaufen
@@ -416,7 +404,6 @@ Kaufen
 <p>1,75 €</p>
 
 <button
-class="kaufenBtn"
 onclick="kaufen(1.75,'Cola Dose')">
 
 Kaufen
@@ -432,7 +419,6 @@ Kaufen
 <p>3,99 €</p>
 
 <button
-class="kaufenBtn"
 onclick="kaufen(3.99,'A4 Holz Platte')">
 
 Kaufen
@@ -448,7 +434,6 @@ Kaufen
 <p>1,25 €</p>
 
 <button
-class="kaufenBtn"
 onclick="kaufen(1.25,'Schere')">
 
 Kaufen
@@ -456,6 +441,7 @@ Kaufen
 </button>
 
 </div>
+
 <div class="item">
 
 <h3>🎲 Random Sache</h3>
@@ -463,7 +449,6 @@ Kaufen
 <p>4,99 €</p>
 
 <button
-class="kaufenBtn"
 onclick="kaufen(4.99,'Random Sache')">
 
 Kaufen
@@ -471,10 +456,9 @@ Kaufen
 </button>
 
 </div>
-
 </div>
 
-<h2 style="margin-top:20px;">
+<h2>
 
 📦 Kaufhistorie
 
@@ -504,7 +488,7 @@ Abmelden
 
 </h1>
 
-<div class="adminButtons">
+<div>
 
 <button onclick="addMoney(1)">
 +1 €
@@ -552,107 +536,155 @@ Hinzufügen
 
 </h2>
 
+<h2>
+
+📦 Bestellungen
+
+</h2>
+
+<div id="orders">
+
+Noch keine Bestellungen.
+
 </div>
 
-<script>
+</div>
+
+<script type="module">
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+getFirestore,
+doc,
+getDoc,
+setDoc,
+updateDoc,
+collection,
+addDoc,
+onSnapshot
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+
+apiKey: "AIzaSyAmed2qow-9xcDbEfyqV67w-fokEbZgU6U",
+
+authDomain:
+"artstore-45b35.firebaseapp.com",
+
+projectId:
+"artstore-45b35",
+
+storageBucket:
+"artstore-45b35.firebasestorage.app",
+
+messagingSenderId:
+"596385821863",
+
+appId:
+"1:596385821863:web:1e541672b327983f9b9782"
+
+};
+
+const app =
+initializeApp(firebaseConfig);
+
+const db =
+getFirestore(app);
+
 let geld = 0;
 
+let aktuellerUser = "";
+
 let kaufHistorie = [];
+
+async function ladeGuthaben(){
+
+const ref =
+doc(
+db,
+"users",
+"Art"
+);
+
+const snap =
+await getDoc(ref);
+
+if(
+snap.exists()
+){
+
+geld =
+snap.data().guthaben || 0;
+
+updateMoney();
+
+}
+
+}
 
 function updateMoney(){
 
 let g =
-document.getElementById("geld");
+document.getElementById(
+"geld"
+);
 
 if(g){
 
 g.innerHTML =
-geld.toFixed(2) + " €";
+geld.toFixed(2)
++ " €";
 
 }
 
 let a =
-document.getElementById("adminGeld");
+document.getElementById(
+"adminGeld"
+);
 
 if(a){
 
 a.innerHTML =
-geld.toFixed(2) + " €";
+geld.toFixed(2)
++ " €";
 
 }
 
 }
 
-function login(){
+async function saveGuthaben(){
 
-let u =
-document.getElementById("user").value;
+await updateDoc(
 
-let p =
-document.getElementById("pass").value;
+doc(
+db,
+"users",
+"Art"
+),
 
-if(
-u === "Art" &&
-p === "artisthart"
+{
+guthaben: geld
+}
+
+);
+
+}
+
+async function addMoney(
+betrag
 ){
-
-document.getElementById("login")
-.style.display = "none";
-
-document.getElementById("shop")
-.style.display = "block";
-
-updateMoney();
-
-}
-
-else if(
-u === "Mirac" &&
-p === "mirac911"
-){
-
-document.getElementById("login")
-.style.display = "none";
-
-document.getElementById("admin")
-.style.display = "block";
-
-updateMoney();
-
-}
-
-else{
-
-document.getElementById("fehler")
-.innerHTML =
-"Falscher Benutzername oder Passwort";
-
-}
-
-}
-
-function logout(){
-
-document.getElementById("shop")
-.style.display = "none";
-
-document.getElementById("admin")
-.style.display = "none";
-
-document.getElementById("login")
-.style.display = "block";
-
-}
-
-function addMoney(betrag){
 
 geld += betrag;
 
 updateMoney();
 
+await saveGuthaben();
+
 }
 
-function addCustomMoney(){
+async function addCustomMoney(){
 
 let wert =
 parseFloat(
@@ -661,7 +693,9 @@ document.getElementById(
 ).value
 );
 
-if(isNaN(wert)){
+if(
+isNaN(wert)
+){
 
 return;
 
@@ -671,15 +705,22 @@ geld += wert;
 
 updateMoney();
 
+await saveGuthaben();
+
 document.getElementById(
 "customMoney"
 ).value = "";
 
 }
 
-function kaufen(preis,name){
+async function kaufen(
+preis,
+artikel
+){
 
-if(geld < preis){
+if(
+geld < preis
+){
 
 alert(
 "Zu wenig Guthaben!"
@@ -693,10 +734,44 @@ geld -= preis;
 
 updateMoney();
 
+await saveGuthaben();
+
+await addDoc(
+
+collection(
+db,
+"orders"
+),
+
+{
+
+user:
+aktuellerUser,
+
+artikel:
+artikel,
+
+preis:
+preis,
+
+zeit:
+new Date()
+.toLocaleString()
+
+}
+
+);
+
 kaufHistorie.push(
-name + " - " +
-preis.toFixed(2) +
+
+artikel
++
+" - "
++
+preis.toFixed(2)
++
 " €"
+
 );
 
 updateHistorie();
@@ -709,12 +784,15 @@ document.getElementById(
 m.style.display =
 "block";
 
-setTimeout(function(){
+setTimeout(
+function(){
 
 m.style.display =
 "none";
 
-},3000);
+},
+3000
+);
 
 }
 
@@ -739,45 +817,210 @@ return;
 h.innerHTML = "";
 
 for(
-let i = kaufHistorie.length-1;
+let i =
+kaufHistorie.length - 1;
 i >= 0;
 i--
 ){
 
 h.innerHTML +=
 
-"<div style='margin:8px;'>"
-
+"<div>📦 "
 +
-
-"📦 "
-
-+
-
 kaufHistorie[i]
-
 +
-
 "</div>";
 
 }
 
 }
 
+onSnapshot(
+
+collection(
+db,
+"orders"
+),
+
+(snapshot)=>{
+
+let html = "";
+
+snapshot.forEach(
+(docu)=>{
+
+let d =
+docu.data();
+
+html +=
+
+"<div>📦 "
++
+d.user
++
+" kaufte "
++
+d.artikel
++
+" ("
++
+d.preis
++
+" €)</div>";
+
+});
+
+document.getElementById(
+"orders"
+).innerHTML = html;
+
+}
+
+);
+
+async function login(){
+
+let u =
+document.getElementById(
+"user"
+).value;
+
+let p =
+document.getElementById(
+"pass"
+).value;
+
+const ref =
+doc(
+db,
+"users",
+u
+);
+
+const snap =
+await getDoc(ref);
+
+if(
+!snap.exists()
+){
+
+document.getElementById(
+"fehler"
+).innerHTML =
+"Benutzer nicht gefunden";
+
+return;
+
+}
+
+const daten =
+snap.data();
+
+if(
+daten.password !== p
+){
+
+document.getElementById(
+"fehler"
+).innerHTML =
+"Falsches Passwort";
+
+return;
+
+}
+
+aktuellerUser = u;
+
+geld =
+daten.guthaben || 0;
+
+updateMoney();
+
+document.getElementById(
+"login"
+).style.display =
+"none";
+
+if(
+u === "Mirac"
+){
+
+document.getElementById(
+"admin"
+).style.display =
+"block";
+
+}
+
+else{
+
+document.getElementById(
+"shop"
+).style.display =
+"block";
+
+}
+
+}
+
+function logout(){
+
+document.getElementById(
+"shop"
+).style.display =
+"none";
+
+document.getElementById(
+"admin"
+).style.display =
+"none";
+
+document.getElementById(
+"login"
+).style.display =
+"block";
+
+aktuellerUser = "";
+
+}
+
+onSnapshot(
+
+doc(
+db,
+"users",
+"Art"
+),
+
+(snapshot)=>{
+
+if(
+snapshot.exists()
+){
+
+geld =
+snapshot.data()
+.guthaben || 0;
+
+updateMoney();
+
+}
+
+}
+
+);
+
+ladeGuthaben();
 function sucheArtikel(){
 
 let suche =
-
 document.getElementById(
 "suche"
 )
-
 .value
-
 .toLowerCase();
 
 let artikel =
-
 document.getElementsByClassName(
 "item"
 );
@@ -789,11 +1032,8 @@ i++
 ){
 
 let text =
-
 artikel[i]
-
 .innerText
-
 .toLowerCase();
 
 if(
@@ -820,10 +1060,309 @@ updateMoney();
 
 updateHistorie();
 
-/* FIREBASE KOMMT SPÄTER */
+console.log(
+"Firebase aktiv"
+);
 
 console.log(
-"ART STORE GROSSES FINALE"
+"Guthaben Speicherung aktiv"
+);
+
+console.log(
+"Bestellungen aktiv"
+);
+
+console.log(
+"Samsung Synchronisation aktiv"
+);
+onSnapshot(
+
+doc(
+db,
+"users",
+"Art"
+),
+
+(snapshot)=>{
+
+if(
+snapshot.exists()
+){
+
+let daten =
+snapshot.data();
+
+geld =
+daten.guthaben || 0;
+
+updateMoney();
+
+}
+
+}
+
+);
+
+onSnapshot(
+
+collection(
+db,
+"orders"
+),
+
+(snapshot)=>{
+
+let html = "";
+
+snapshot.forEach(
+(docu)=>{
+
+let d =
+docu.data();
+
+html +=
+
+"<div style='margin:8px;'>"
+
++
+
+"📦 "
+
++
+
+d.user
+
++
+
+" kaufte "
+
++
+
+d.artikel
+
++
+
+" - "
+
++
+
+d.preis
+
++
+
+" €"
+
++
+
+"</div>";
+
+});
+
+let o =
+document.getElementById(
+"orders"
+);
+
+if(o){
+
+o.innerHTML =
+html || "Noch keine Bestellungen.";
+
+}
+
+}
+
+);
+onSnapshot(
+
+doc(
+db,
+"users",
+"Art"
+),
+
+(snapshot)=>{
+
+if(
+snapshot.exists()
+){
+
+let daten =
+snapshot.data();
+
+geld =
+daten.guthaben || 0;
+
+updateMoney();
+
+}
+
+}
+
+);
+
+onSnapshot(
+
+collection(
+db,
+"orders"
+),
+
+(snapshot)=>{
+
+let html = "";
+
+snapshot.forEach(
+(docu)=>{
+
+let d =
+docu.data();
+
+html +=
+
+"<div style='margin:8px;'>"
+
++
+
+"📦 "
+
++
+
+d.user
+
++
+
+" kaufte "
+
++
+
+d.artikel
+
++
+
+" - "
+
++
+
+d.preis
+
++
+
+" €"
+
++
+
+"</div>";
+
+});
+
+let o =
+document.getElementById(
+"orders"
+);
+
+if(o){
+
+o.innerHTML =
+html || "Noch keine Bestellungen.";
+
+}
+
+}
+
+);
+function updateOrders(){
+
+onSnapshot(
+
+collection(
+db,
+"orders"
+),
+
+(snapshot)=>{
+
+let html = "";
+
+snapshot.forEach(
+(docu)=>{
+
+let d =
+docu.data();
+
+html +=
+
+"<div style='padding:10px;margin:5px;border:1px solid cyan;border-radius:10px;'>"
+
++
+
+"👤 "
+
++
+
+d.user
+
++
+
+"<br>📦 "
+
++
+
+d.artikel
+
++
+
+"<br>💰 "
+
++
+
+d.preis
+
++
+
+" €"
+
++
+
+"</div>";
+
+});
+
+let ordersDiv =
+document.getElementById(
+"orders"
+);
+
+if(
+ordersDiv
+){
+
+ordersDiv.innerHTML =
+html;
+
+}
+
+}
+
+);
+
+}
+
+updateOrders();
+console.log(
+"ART STORE FIREBASE"
+);
+
+console.log(
+"Guthaben aktiv"
+);
+
+console.log(
+"Bestellungen aktiv"
+);
+
+console.log(
+"Samsung ↔ PC aktiv"
 );
 
 console.log(
@@ -835,19 +1374,7 @@ console.log(
 );
 
 console.log(
-"Guthaben System aktiv"
-);
-
-console.log(
-"Kaufhistorie aktiv"
-);
-
-console.log(
-"Suche aktiv"
-);
-
-console.log(
-"Gaming Design aktiv"
+"GROSSES FINALE GELADEN"
 );
 
 </script>
