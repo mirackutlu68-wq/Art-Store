@@ -6,34 +6,36 @@
 <meta charset="UTF-8">
 
 <meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+content="width=device-width,initial-scale=1.0">
 
 <title>ART STORE</title>
 
 <style>
 
 *{
+
 margin:0;
+
 padding:0;
+
 box-sizing:border-box;
+
 }
 
 body{
 
 font-family:Arial,sans-serif;
 
-background:
-linear-gradient(
+background:linear-gradient(
 135deg,
 #050510,
-#0f1030,
-#18184d,
+#101040,
 #050510
 );
 
 background-size:400% 400%;
 
-animation:bg 15s ease infinite;
+animation:bg 15s infinite;
 
 color:white;
 
@@ -45,17 +47,11 @@ min-height:100vh;
 
 @keyframes bg{
 
-0%{
-background-position:0% 50%;
-}
+0%{background-position:0% 50%;}
 
-50%{
-background-position:100% 50%;
-}
+50%{background-position:100% 50%;}
 
-100%{
-background-position:0% 50%;
-}
+100%{background-position:0% 50%;}
 
 }
 
@@ -81,13 +77,13 @@ font-size:55px;
 
 margin-bottom:25px;
 
-color:#00ffff;
+color:cyan;
 
 text-shadow:
 
 0 0 10px cyan,
 
-0 0 20px cyan,
+0 0 25px cyan,
 
 0 0 40px cyan;
 
@@ -121,15 +117,13 @@ border:none;
 
 border-radius:12px;
 
-cursor:pointer;
+background:cyan;
+
+color:black;
 
 font-weight:bold;
 
-font-size:16px;
-
-background:#00ffff;
-
-color:black;
+cursor:pointer;
 
 transition:.3s;
 
@@ -189,6 +183,30 @@ box-shadow:
 
 }
 
+#meldung{
+
+display:none;
+
+position:fixed;
+
+top:20px;
+
+left:50%;
+
+transform:translateX(-50%);
+
+background:#00cc66;
+
+padding:15px 30px;
+
+border-radius:12px;
+
+font-weight:bold;
+
+z-index:999;
+
+}
+
 .shop{
 
 display:flex;
@@ -215,9 +233,7 @@ border-radius:20px;
 
 padding:15px;
 
-box-shadow:
-
-0 0 15px cyan;
+box-shadow:0 0 15px cyan;
 
 transition:.3s;
 
@@ -235,75 +251,6 @@ box-shadow:
 
 }
 
-.item h3{
-
-color:cyan;
-
-margin-bottom:10px;
-
-}
-
-.item p{
-
-margin:8px;
-
-font-size:18px;
-
-}
-
-.suche{
-
-margin:20px;
-
-}
-
-.suche input{
-
-width:350px;
-
-}
-
-#meldung{
-
-display:none;
-
-position:fixed;
-
-top:20px;
-
-left:50%;
-
-transform:translateX(-50%);
-
-background:#00cc66;
-
-padding:15px 30px;
-
-border-radius:12px;
-
-font-weight:bold;
-
-box-shadow:
-
-0 0 15px #00cc66;
-
-z-index:999;
-
-}
-
-#orders,
-#historie{
-
-margin:20px auto;
-
-width:90%;
-
-max-width:700px;
-
-text-align:left;
-
-}
-
 </style>
 
 </head>
@@ -318,11 +265,7 @@ text-align:left;
 
 <div id="login">
 
-<h1>
-
-🎮 ART STORE 🎮
-
-</h1>
+<h1>🎮 ART STORE 🎮</h1>
 
 <input
 id="user"
@@ -351,6 +294,7 @@ style="color:red;font-weight:bold;">
 </p>
 
 </div>
+
 <div id="shop">
 
 <button
@@ -372,15 +316,6 @@ Abmelden
 🎮 ART STORE 🎮
 
 </h1>
-
-<div class="suche">
-
-<input
-id="suche"
-placeholder="Artikel suchen..."
-onkeyup="sucheArtikel()">
-
-</div>
 
 <div class="shop">
 
@@ -557,152 +492,49 @@ Abmelden
 
 </h2>
 
-<h2>
+<script>
 
-📦 Bestellungen
+const USERS={
 
-</h2>
+Art:{
+passwort:"artisthart"
+},
 
-<div id="orders">
-
-Noch keine Bestellungen.
-
-</div>
-
-</div>
-
-<script type="module">
-
-import { initializeApp }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
-import {
-
-getFirestore,
-doc,
-getDoc,
-updateDoc,
-collection,
-addDoc,
-onSnapshot
-
+Mirac:{
+passwort:"mirac911"
 }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-const firebaseConfig={
-
-apiKey:"AIzaSyAmed2qow-9xcDbEfyqV67w-fokEbZgU6U",
-
-authDomain:"artstore-45b35.firebaseapp.com",
-
-projectId:"artstore-45b35",
-
-storageBucket:"artstore-45b35.firebasestorage.app",
-
-messagingSenderId:"596385821863",
-
-appId:"1:596385821863:web:1e541672b327983f9b9782"
 
 };
 
-const app=
-
-initializeApp(
-firebaseConfig
-);
-
-const db=
-
-getFirestore(
-app
-);
-
 let aktuellerUser="";
 
-let geld=0;
+let geld=
+Number(
+localStorage.getItem(
+"geld"
+)
+)||0;
 
-let kaufHistorie=[];
+let kaufHistorie=
+JSON.parse(
+localStorage.getItem(
+"historie"
+)
+)||[];
 
-async function login(){
+function speichern(){
 
-let u=
-document.getElementById(
-"user"
-).value.trim();
-
-let p=
-document.getElementById(
-"pass"
-).value;
-
-const ref=
-doc(
-db,
-"users",
-u
+localStorage.setItem(
+"geld",
+geld
 );
 
-const snap=
-await getDoc(ref);
-
-if(
-!snap.exists()
-){
-
-document.getElementById(
-"fehler"
-).innerHTML=
-"Benutzer nicht gefunden";
-
-return;
-
-}
-
-const daten=
-snap.data();
-
-if(
-daten.passwort!==p
-){
-
-document.getElementById(
-"fehler"
-).innerHTML=
-"Passwort falsch";
-
-return;
-
-}
-
-aktuellerUser=u;
-
-geld=
-daten.guthaben||0;
-
-updateMoney();
-
-document.getElementById(
-"login"
-).style.display=
-"none";
-
-if(
-u==="Mirac"
-){
-
-document.getElementById(
-"admin"
-).style.display=
-"block";
-
-}else{
-
-document.getElementById(
-"shop"
-).style.display=
-"block";
-
-}
+localStorage.setItem(
+"historie",
+JSON.stringify(
+kaufHistorie
+)
+);
 
 }
 
@@ -736,39 +568,121 @@ geld.toFixed(2)
 
 }
 
-async function saveMoney(){
+function login(){
 
-await updateDoc(
+let u=
+document.getElementById(
+"user"
+).value.trim();
 
-doc(
-db,
-"users",
-aktuellerUser
-),
+let p=
+document.getElementById(
+"pass"
+).value;
 
-{
+if(
+!USERS[u]
+){
 
-guthaben:geld
+document.getElementById(
+"fehler"
+).innerHTML=
+"Benutzer nicht gefunden";
+
+return;
 
 }
 
-);
+if(
+USERS[u].passwort!==p
+){
+
+document.getElementById(
+"fehler"
+).innerHTML=
+"Passwort falsch";
+
+return;
 
 }
 
-async function addMoney(
+aktuellerUser=u;
+
+document.getElementById(
+"fehler"
+).innerHTML="";
+
+document.getElementById(
+"login"
+).style.display=
+"none";
+
+if(
+u==="Mirac"
+){
+
+document.getElementById(
+"admin"
+).style.display=
+"block";
+
+}else{
+
+document.getElementById(
+"shop"
+).style.display=
+"block";
+
+}
+
+updateMoney();
+
+updateHistorie();
+
+}
+
+function logout(){
+
+document.getElementById(
+"shop"
+).style.display=
+"none";
+
+document.getElementById(
+"admin"
+).style.display=
+"none";
+
+document.getElementById(
+"login"
+).style.display=
+"block";
+
+document.getElementById(
+"user"
+).value="";
+
+document.getElementById(
+"pass"
+).value="";
+
+aktuellerUser="";
+
+}
+
+function addMoney(
 betrag
 ){
 
 geld+=betrag;
 
-updateMoney();
+speichern();
 
-await saveMoney();
+updateMoney();
 
 }
 
-async function removeMoney(
+function removeMoney(
 betrag
 ){
 
@@ -782,13 +696,13 @@ geld=0;
 
 }
 
-updateMoney();
+speichern();
 
-await saveMoney();
+updateMoney();
 
 }
 
-async function kaufen(
+function kaufen(
 preis,
 artikel
 ){
@@ -807,53 +721,36 @@ return;
 
 geld-=preis;
 
-updateMoney();
-
-await saveMoney();
-
-await addDoc(
-
-collection(
-db,
-"orders"
-),
-
-{
-
-user:
-aktuellerUser,
-
-artikel:
-artikel,
-
-preis:
-preis,
-
-zeit:
-new Date()
-.toLocaleString()
-
-}
-
-);
-
 kaufHistorie.unshift(
 
 "📦 "
+
 +
+
 artikel
+
 +
+
 " - "
+
 +
+
 preis.toFixed(2)
+
 +
+
 " €"
 
 );
 
+speichern();
+
+updateMoney();
+
 updateHistorie();
 
 let m=
+
 document.getElementById(
 "meldung"
 );
@@ -861,18 +758,25 @@ document.getElementById(
 m.style.display=
 "block";
 
-setTimeout(()=>{
+setTimeout(
+
+()=>{
 
 m.style.display=
 "none";
 
-},2500);
+},
+
+2500
+
+);
 
 }
 
 function updateHistorie(){
 
 let h=
+
 document.getElementById(
 "historie"
 );
@@ -912,168 +816,18 @@ kaufHistorie[i]
 
 }
 
-onSnapshot(
-
-doc(
-db,
-"users",
-"Art"
-),
-
-(snapshot)=>{
-
-if(
-snapshot.exists()
-&&
-aktuellerUser==="Art"
-){
-
-geld=
-snapshot.data().guthaben||0;
+window.onload=function(){
 
 updateMoney();
 
-}
+updateHistorie();
 
-}
-
-);
-
-onSnapshot(
-
-doc(
-db,
-"users",
-"Mirac"
-),
-
-(snapshot)=>{
-
-if(
-snapshot.exists()
-&&
-aktuellerUser==="Mirac"
-){
-
-geld=
-snapshot.data().guthaben||0;
-
-updateMoney();
-
-}
-
-}
-
-);
-
-onSnapshot(
-
-collection(
-db,
-"orders"
-),
-
-(snapshot)=>{
-
-let html="";
-
-snapshot.forEach(
-(docu)=>{
-
-let d=
-docu.data();
-
-html+=
-
-"<div style='padding:10px;margin:8px;border:1px solid cyan;border-radius:10px;'>"
-
-+
-
-"👤 <b>"
-
-+
-
-d.user
-
-+
-
-"</b><br>"
-
-+
-
-"📦 "
-
-+
-
-d.artikel
-
-+
-
-"<br>"
-
-+
-
-"💰 "
-
-+
-
-d.preis
-
-+
-
-" €<br>"
-
-+
-
-"🕒 "
-
-+
-
-d.zeit
-
-+
-
-"</div>";
-
-});
-
-document.getElementById(
-"orders"
-).innerHTML=
-
-html ||
-
-"Noch keine Bestellungen.";
-
-}
-
-);
-
-function logout(){
-
-aktuellerUser="";
-
-document.getElementById(
-"shop"
-).style.display="none";
-
-document.getElementById(
-"admin"
-).style.display="none";
-
-document.getElementById(
-"login"
-).style.display="block";
-
-document.getElementById(
-"fehler"
-).innerHTML="";
-
-}
+};
 
 function sucheArtikel(){
 
 let suche=
+
 document.getElementById(
 "suche"
 )
@@ -1081,6 +835,7 @@ document.getElementById(
 .toLowerCase();
 
 let artikel=
+
 document.getElementsByClassName(
 "item"
 );
@@ -1092,6 +847,7 @@ i++
 ){
 
 let text=
+
 artikel[i]
 .innerText
 .toLowerCase();
@@ -1118,24 +874,8 @@ artikel[i]
 
 }
 
-updateMoney();
-
-updateHistorie();
-
 console.log(
-"ART STORE V2"
-);
-
-console.log(
-"Firebase verbunden"
-);
-
-console.log(
-"Guthaben aktiv"
-);
-
-console.log(
-"Bestellungen aktiv"
+"ART STORE LOCAL"
 );
 
 console.log(
@@ -1143,276 +883,15 @@ console.log(
 );
 
 console.log(
-"Synchronisation aktiv"
-);
-
-function startSync(){
-
-onSnapshot(
-
-doc(
-db,
-"users",
-aktuellerUser
-),
-
-(snapshot)=>{
-
-if(
-snapshot.exists()
-){
-
-geld=
-snapshot.data()
-.guthaben||0;
-
-updateMoney();
-
-}
-
-}
-
-);
-
-}
-
-function clearLogin(){
-
-document.getElementById(
-"user"
-).value="";
-
-document.getElementById(
-"pass"
-).value="";
-
-document.getElementById(
-"fehler"
-).innerHTML="";
-
-}
-
-const alteLogin=
-
-login;
-
-login=
-async function(){
-
-await alteLogin();
-
-if(
-aktuellerUser!==""
-){
-
-startSync();
-
-clearLogin();
-
-}
-
-};
-
-function updateOrders(){
-
-onSnapshot(
-
-collection(
-db,
-"orders"
-),
-
-(snapshot)=>{
-
-let html="";
-
-snapshot.forEach(
-(docu)=>{
-
-let d=
-docu.data();
-
-html+=
-
-"<div style='background:#14142b;border:2px solid cyan;border-radius:15px;padding:12px;margin:10px;'>"
-
-+
-
-"👤 <b>"
-
-+
-
-d.user
-
-+
-
-"</b><br>"
-
-+
-
-"📦 "
-
-+
-
-d.artikel
-
-+
-
-"<br>"
-
-+
-
-"💰 "
-
-+
-
-Number(d.preis).toFixed(2)
-
-+
-
-" €<br>"
-
-+
-
-"🕒 "
-
-+
-
-d.zeit
-
-+
-
-"</div>";
-
-});
-
-document.getElementById(
-"orders"
-).innerHTML=
-
-html ||
-
-"Noch keine Bestellungen.";
-
-}
-
-);
-
-}
-
-updateOrders();
-
-window.addEventListener(
-
-"load",
-
-()=>{
-
-document.getElementById(
-"login"
-).style.display=
-"block";
-
-document.getElementById(
-"shop"
-).style.display=
-"none";
-
-document.getElementById(
-"admin"
-).style.display=
-"none";
-
-document.getElementById(
-"fehler"
-).innerHTML="";
-
-updateMoney();
-
-updateHistorie();
-
-});
-
-window.addEventListener(
-
-"beforeunload",
-
-()=>{
-
-if(
-aktuellerUser!==""
-){
-
-saveMoney();
-
-}
-
-});
-
-console.log(
-
-"ART STORE V2 erfolgreich geladen"
-
+"localStorage aktiv"
 );
 
 console.log(
-
-"Bereit zum Login"
-
-);
-
-updateOrders();
-
-updateMoney();
-
-updateHistorie();
-
-console.log(
-"================================"
+"Guthaben aktiv"
 );
 
 console.log(
-"ART STORE V2"
-);
-
-console.log(
-"Art Login ✅"
-);
-
-console.log(
-"Mirac Login ✅"
-);
-
-console.log(
-"Firebase users ✅"
-);
-
-console.log(
-"Firebase orders ✅"
-);
-
-console.log(
-"Guthaben speichern ✅"
-);
-
-console.log(
-"Live Synchronisation ✅"
-);
-
-console.log(
-"Bestellungen ✅"
-);
-
-console.log(
-"Shop ✅"
-);
-
-console.log(
-"Fertig ✅"
-);
-
-console.log(
-"================================"
+"Kaufhistorie aktiv"
 );
 
 </script>
